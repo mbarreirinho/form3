@@ -206,7 +206,7 @@ resource "docker_container" "frontend_development" {
   name  = "frontend_development"
 
   ports {
-    internal = 80
+    internal = var.http_port
     external = 4080
   }
 
@@ -250,7 +250,7 @@ resource "vault_generic_secret" "account_staging" {
 
   data_json = <<EOT
 {
-  "db_user":   "account",
+  "db_user":   "${var.db_user_account_stg}",
   "db_password": "396e73e7-34d5-4b0a-ae1b-b128aa7f9977"
 }
 EOT
@@ -437,7 +437,7 @@ resource "docker_container" "frontend_staging" {
   name  = "frontend_staging"
 
   ports {
-    internal = 80
+    internal = var.http_port
     external = 4082
   }
 
@@ -668,7 +668,7 @@ resource "docker_container" "frontend_production" {
   name  = "frontend_production"
 
   ports {
-    internal = 80
+    internal = var.http_port
     external = 4081
   }
 
