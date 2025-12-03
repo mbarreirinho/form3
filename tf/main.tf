@@ -1,3 +1,10 @@
+#
+######################################
+#  Block for Dev resources
+######################################
+#
+
+
 resource "vault_audit" "audit_dev" {
   provider = vault.vault_dev
   type     = "file"
@@ -7,23 +14,8 @@ resource "vault_audit" "audit_dev" {
   }
 }
 
-resource "vault_audit" "audit_prod" {
-  provider = vault.vault_prod
-  type     = "file"
-
-  options = {
-    file_path = "/vault/logs/audit"
-  }
-}
-
 resource "vault_auth_backend" "userpass_dev" {
   provider = vault.vault_dev
-  type     = "userpass"
-}
-
-
-resource "vault_auth_backend" "userpass_prod" {
-  provider = vault.vault_prod
   type     = "userpass"
 }
 
@@ -143,6 +135,120 @@ resource "vault_generic_endpoint" "payment_development" {
 EOT
 }
 
+resource "docker_container" "account_development" {
+  image = "form3tech-oss/platformtest-account"
+  name  = "account_development"
+
+  env = [
+    "VAULT_ADDR=http://vault-development:8200",
+    "VAULT_USERNAME=account-development",
+    "VAULT_PASSWORD=123-account-development",
+    "ENVIRONMENT=development"
+  ]
+
+  networks_advanced {
+    name = "vagrant_development"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  depends_on = [vault_generic_endpoint.account_development]
+}
+
+resource "docker_container" "gateway_development" {
+  image = "form3tech-oss/platformtest-gateway"
+  name  = "gateway_development"
+
+  env = [
+    "VAULT_ADDR=http://vault-development:8200",
+    "VAULT_USERNAME=gateway-development",
+    "VAULT_PASSWORD=123-gateway-development",
+    "ENVIRONMENT=development"
+  ]
+
+  networks_advanced {
+    name = "vagrant_development"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  depends_on = [vault_generic_endpoint.gateway_development]
+}
+
+resource "docker_container" "payment_development" {
+  image = "form3tech-oss/platformtest-payment"
+  name  = "payment_development"
+
+  env = [
+    "VAULT_ADDR=http://vault-development:8200",
+    "VAULT_USERNAME=payment-development",
+    "VAULT_PASSWORD=123-payment-development",
+    "ENVIRONMENT=development"
+  ]
+
+  networks_advanced {
+    name = "vagrant_development"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  depends_on = [vault_generic_endpoint.payment_development]
+}
+
+resource "docker_container" "frontend_development" {
+  image = "docker.io/nginx:latest"
+  name  = "frontend_development"
+
+  ports {
+    internal = 80
+    external = 4080
+  }
+
+  networks_advanced {
+    name = "vagrant_development"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+}
+
+
+#
+######################################
+#  Block for Staging resources
+######################################
+#
+
+#
+######################################
+#  Block for Prod resources
+######################################
+#
+
+
+resource "vault_audit" "audit_prod" {
+  provider = vault.vault_prod
+  type     = "file"
+
+  options = {
+    file_path = "/vault/logs/audit"
+  }
+}
+
+
+resource "vault_auth_backend" "userpass_prod" {
+  provider = vault.vault_prod
+  type     = "userpass"
+}
+
+
 resource "vault_generic_secret" "account_production" {
   provider = vault.vault_prod
   path     = "secret/production/account"
@@ -260,6 +366,10 @@ resource "vault_generic_endpoint" "payment_production" {
 EOT
 }
 
+
+#
+# Resource for container creation
+#
 resource "docker_container" "account_production" {
   image = "form3tech-oss/platformtest-account"
   name  = "account_production"
@@ -343,88 +453,4 @@ resource "docker_container" "frontend_production" {
     ignore_changes = all
   }
 
-}
-
-resource "docker_container" "account_development" {
-  image = "form3tech-oss/platformtest-account"
-  name  = "account_development"
-
-  env = [
-    "VAULT_ADDR=http://vault-development:8200",
-    "VAULT_USERNAME=account-development",
-    "VAULT_PASSWORD=123-account-development",
-    "ENVIRONMENT=development"
-  ]
-
-  networks_advanced {
-    name = "vagrant_development"
-  }
-
-  lifecycle {
-    ignore_changes = all
-  }
-
-  depends_on = [vault_generic_endpoint.account_development]
-}
-
-resource "docker_container" "gateway_development" {
-  image = "form3tech-oss/platformtest-gateway"
-  name  = "gateway_development"
-
-  env = [
-    "VAULT_ADDR=http://vault-development:8200",
-    "VAULT_USERNAME=gateway-development",
-    "VAULT_PASSWORD=123-gateway-development",
-    "ENVIRONMENT=development"
-  ]
-
-  networks_advanced {
-    name = "vagrant_development"
-  }
-
-  lifecycle {
-    ignore_changes = all
-  }
-
-  depends_on = [vault_generic_endpoint.gateway_development]
-}
-
-resource "docker_container" "payment_development" {
-  image = "form3tech-oss/platformtest-payment"
-  name  = "payment_development"
-
-  env = [
-    "VAULT_ADDR=http://vault-development:8200",
-    "VAULT_USERNAME=payment-development",
-    "VAULT_PASSWORD=123-payment-development",
-    "ENVIRONMENT=development"
-  ]
-
-  networks_advanced {
-    name = "vagrant_development"
-  }
-
-  lifecycle {
-    ignore_changes = all
-  }
-
-  depends_on = [vault_generic_endpoint.payment_development]
-}
-
-resource "docker_container" "frontend_development" {
-  image = "docker.io/nginx:latest"
-  name  = "frontend_development"
-
-  ports {
-    internal = 80
-    external = 4080
-  }
-
-  networks_advanced {
-    name = "vagrant_development"
-  }
-
-  lifecycle {
-    ignore_changes = all
-  }
 }
