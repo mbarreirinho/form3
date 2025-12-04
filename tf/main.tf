@@ -424,8 +424,8 @@ resource "docker_container" "payment_staging" {
 
   env = [
     "VAULT_ADDR=http://vault-staging:8200",
-    "VAULT_USERNAME=payment-staging",
-    "VAULT_PASSWORD=123-payment-staging",
+    "VAULT_USERNAME=${var.vault_payment_username_staging}",
+    "VAULT_PASSWORD=${var.vault_payment_password_staging}",
     "ENVIRONMENT=staging"
   ]
 
@@ -555,24 +555,24 @@ resource "vault_generic_endpoint" "gateway_production" {
   path                 = "auth/userpass/users/gateway-production"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["gateway-production"],
   "password": "123-gateway-production"
-}
-EOT
+  })
+
 }
 
 resource "vault_generic_secret" "payment_production" {
   provider = vault.vault_prod
   path     = "secret/production/payment"
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "db_user":   "payment",
   "db_password": "821462d7-47fb-402c-a22a-a58867602e39"
-}
-EOT
+  })
+
 }
 
 resource "vault_policy" "payment_production" {
@@ -594,12 +594,12 @@ resource "vault_generic_endpoint" "payment_production" {
   path                 = "auth/userpass/users/payment-production"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["payment-production"],
   "password": "123-payment-production"
-}
-EOT
+  })
+
 }
 
 
@@ -612,8 +612,8 @@ resource "docker_container" "account_production" {
 
   env = [
     "VAULT_ADDR=http://vault-production:8200",
-    "VAULT_USERNAME=account-production",
-    "VAULT_PASSWORD=123-account-production",
+    "VAULT_USERNAME= + var.vault_account_username_production",
+    "VAULT_PASSWORD= + var.vault_account_password_production",
     "ENVIRONMENT=production"
   ]
 
@@ -634,8 +634,8 @@ resource "docker_container" "gateway_production" {
 
   env = [
     "VAULT_ADDR=http://vault-production:8200",
-    "VAULT_USERNAME=gateway-production",
-    "VAULT_PASSWORD=123-gateway-production",
+    "VAULT_USERNAME= + var.vault_gateway_username_production",
+    "VAULT_PASSWORD= + var.vault_gateway_password_production",
     "ENVIRONMENT=production"
   ]
 
@@ -656,8 +656,8 @@ resource "docker_container" "payment_production" {
 
   env = [
     "VAULT_ADDR=http://vault-production:8200",
-    "VAULT_USERNAME=payment-production",
-    "VAULT_PASSWORD=123-payment-production",
+    "VAULT_USERNAME= + var.vault_payment_username_production",
+    "VAULT_PASSWORD= + var.vault_payment_password_production",
     "ENVIRONMENT=production"
   ]
 
