@@ -53,7 +53,7 @@ variable "vault_generic_db_user_gateway_staging" {
 
 variable "vault_generic_endpoint_password_gateway_staging" {
   type        = string
-  description = "Vault generic endpoint passwoed gateway stg"
+  description = "Vault generic endpoint password gateway stg"
   sensitive   = true
   default = ""
 
@@ -73,6 +73,15 @@ variable "vault_generic_db_user_payment_staging" {
 variable "vault_generic_db_password_payment_staging" {
   type        = string
   description = "Vault generic payment db_passwoed stg"
+  sensitive   = true
+  default = ""
+
+}
+
+
+variable "vault_generic_endpoint_password_payment_staging" {
+  type        = string
+  description = "Vault generic endpoint password payment stg"
   sensitive   = true
   default = ""
 

@@ -358,12 +358,12 @@ resource "vault_generic_endpoint" "payment_staging" {
   path                 = "auth/userpass/users/payment-staging"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["payment-staging"],
-  "password": "123-payment-staging"
-}
-EOT
+  "password": "${var.vault_generic_endpoint_password_payment_staging}"
+  })
+
 }
 
 
