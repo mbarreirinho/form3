@@ -377,8 +377,8 @@ resource "docker_container" "account_staging" {
 
   env = [
     "VAULT_ADDR=http://vault-staging:8200",
-    "VAULT_USERNAME=account-staging",
-    "VAULT_PASSWORD=123-account-staging",
+    "VAULT_USERNAME=${var.vault_account_username_staging}",
+    "VAULT_PASSWORD=${var.vault_account_password_staging}",
     "ENVIRONMENT=staging"
   ]
 
@@ -392,6 +392,9 @@ resource "docker_container" "account_staging" {
 
   depends_on = [vault_generic_endpoint.account_staging]
 }
+
+## PS: I tryed creatre variables for the following authentication but i encounter erros
+# Iĺl care about it late
 
 resource "docker_container" "gateway_staging" {
   image = "form3tech-oss/platformtest-gateway"
@@ -436,6 +439,7 @@ resource "docker_container" "payment_staging" {
 
   depends_on = [vault_generic_endpoint.payment_staging]
 }
+
 
 resource "docker_container" "frontend_staging" {
   image = "docker.io/nginx:latest"

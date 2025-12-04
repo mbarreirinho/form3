@@ -10,9 +10,9 @@ variable "http_port" {
 }
 
 
-#
-# Defining Secrets Variables
-#
+######################################################
+# Defining Secrets Variables for Staging Environment #
+######################################################
 
 variable "db_user_account_stg" {
   type        = string
@@ -82,6 +82,80 @@ variable "vault_generic_db_password_payment_staging" {
 variable "vault_generic_endpoint_password_payment_staging" {
   type        = string
   description = "Vault generic endpoint password payment stg"
+  sensitive   = true
+  default = ""
+
+}
+
+
+# Vault Staging Auntentication
+
+# variable "vault_generic_db_password_payment_staging" {
+#   type        = string
+#   description = "Vault generic payment db_passwoed stg"
+#   sensitive   = true
+#   default = ""
+
+# }
+
+
+# variable "vault_generic_endpoint_password_payment_staging" {
+#   type        = string
+#   description = "Vault generic endpoint password payment stg"
+#   sensitive   = true
+#   default = ""
+
+# }
+
+variable "vault_account_username_staging" {
+  type        = string
+  description = "Vault authentication username stg"
+  sensitive   = true
+  default = ""
+
+}
+
+
+variable "vault_account_password_staging" {
+  type        = string
+  description = "Vault authentication password stg"
+  sensitive   = true
+  default = ""
+
+}
+
+# Vault gateway Auhtntication
+variable "vault_gateway_username_staging" {
+  type        = string
+  description = "Vault authentication username stg"
+  sensitive   = true
+  default = ""
+
+}
+
+
+variable "vault_gateway_password_staging" {
+  type        = string
+  description = "Vault authentication password stg"
+  sensitive   = true
+  default = ""
+
+}
+
+
+# Vault payment Auhtntication
+variable "vault_payment_username_staging" {
+  type        = string
+  description = "Vault authentication username stg"
+  sensitive   = true
+  default = ""
+
+}
+
+
+variable "vault_payment_password_staging" {
+  type        = string
+  description = "Vault authentication password stg"
   sensitive   = true
   default = ""
 
