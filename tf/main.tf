@@ -283,7 +283,7 @@ resource "vault_generic_endpoint" "account_staging" {
   data_json = jsonencode({
 
   "policies": ["account-staging"],
-  "password": "${var.vaults_generic_endpoint_password_staging}"
+  "password": "${var.vault_generic_endpoint_password_staging}"
   })
 
 }
@@ -319,24 +319,24 @@ resource "vault_generic_endpoint" "gateway_staging" {
   path                 = "auth/userpass/users/gateway-staging"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["gateway-staging"],
-  "password": "123-gateway-staging"
-}
-EOT
+  "password": "${var.vault_generic_endpoint_password_gateway_staging}"
+  })
+
 }
 
 resource "vault_generic_secret" "payment_staging" {
   provider = vault.vault_stg
   path     = "secret/staging/payment"
 
-  data_json = <<EOT
-{
-  "db_user":   "payment",
-  "db_password": "821462d7-47fb-402c-a22a-a58867602e39"
-}
-EOT
+  data_json = jsonencode({
+
+  "db_user":   "${var.vault_generic_db_user_payment_staging}",
+  "db_password": "${var.vault_generic_db_password_payment_staging}"
+  })
+
 }
 
 resource "vault_policy" "payment_staging" {
