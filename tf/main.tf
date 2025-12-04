@@ -248,25 +248,30 @@ resource "vault_generic_secret" "account_staging" {
   provider = vault.vault_stg
   path     = "secret/staging/account"
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "db_user":   "${var.db_user_account_stg}",
-  "db_password": "396e73e7-34d5-4b0a-ae1b-b128aa7f9977"
+  "db_password": "${var.db_password_account_stg}"
+  })
+  
 }
-EOT
-}
+
+
 
 resource "vault_policy" "account_staging" {
   provider = vault.vault_stg
   name     = "account-staging"
 
-  policy = <<EOT
+  policy = jsonencode({
 
-path "secret/data/staging/account" {
-    capabilities = ["list", "read"]
-}
+    path   = { 
+      "secret/data/staging/account" = {
+        capabilities = ["list", "read"]
+      }
+    }
 
-EOT
+})
+
 }
 
 resource "vault_generic_endpoint" "account_staging" {
@@ -275,24 +280,24 @@ resource "vault_generic_endpoint" "account_staging" {
   path                 = "auth/userpass/users/account-staging"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["account-staging"],
-  "password": "123-account-staging"
-}
-EOT
+  "password": "${var.vaults_generic_endpoint_password_staging}"
+  })
+
 }
 
 resource "vault_generic_secret" "gateway_staging" {
   provider = vault.vault_stg
   path     = "secret/staging/gateway"
 
-  data_json = <<EOT
-{
-  "db_user":   "gateway",
-  "db_password": "33fc0cc8-b0e3-4c06-8cf6-c7dce2705329"
-}
-EOT
+  data_json = jsonencode({
+
+  "db_user":   "${var.vault_generic_db_user_gateway_staging}",
+  "db_password": "${var.vault_generic_secret_gateway_staging}"
+})
+
 }
 
 resource "vault_policy" "gateway_staging" {
@@ -483,7 +488,7 @@ resource "vault_generic_secret" "account_production" {
   data_json = <<EOT
 {
   "db_user":   "account",
-  "db_password": "396e73e7-34d5-4b0a-ae1b-b128aa7f9977"
+  "db_password": "${var.db_password_account_stg}"
 }
 EOT
 }

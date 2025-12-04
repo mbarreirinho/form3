@@ -8,7 +8,5 @@ terraform.tfstat*
 *.tar.gz
 output
 prompts.txt
-dev.secrets.tfvars
-stg.secrets.tfvars
-prod.secrets.tfvars
+*.auto.tfvars
 
