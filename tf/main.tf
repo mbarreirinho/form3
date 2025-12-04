@@ -489,12 +489,12 @@ resource "vault_generic_secret" "account_production" {
   provider = vault.vault_prod
   path     = "secret/production/account"
 
-  data_json = <<EOT
-{
-  "db_user":   "account",
-  "db_password": "${var.db_password_account_stg}"
-}
-EOT
+  data_json = jsonencode({
+
+  "db_user":   "${var.db_user_account_prod}",
+  "db_password": "${var.db_password_account_prod}"
+  })
+
 }
 
 resource "vault_policy" "account_production" {
@@ -516,24 +516,24 @@ resource "vault_generic_endpoint" "account_production" {
   path                 = "auth/userpass/users/account-production"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["account-production"],
-  "password": "123-account-production"
-}
-EOT
+  "password": "${var.vault_generic_endpoint_password_production}"
+  })
+
 }
 
 resource "vault_generic_secret" "gateway_production" {
   provider = vault.vault_prod
   path     = "secret/production/gateway"
 
-  data_json = <<EOT
-{
-  "db_user":   "gateway",
-  "db_password": "33fc0cc8-b0e3-4c06-8cf6-c7dce2705329"
-}
-EOT
+  data_json = jsonencode({
+
+  "db_user":   "${var.vault_generic_db_user_gateway_production}",
+  "db_password": "${var.vault_generic_secret_gateway_production}"
+  })
+
 }
 
 resource "vault_policy" "gateway_production" {
