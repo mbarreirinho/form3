@@ -3,7 +3,7 @@
 
  [X] Improve the Terraform code to make it easy to add, update, and remove services.
  ## ⚙️ Approuche 1
-     - I used two approaches in executing the task. The first involves the main.tf and providers.<br>tf files. In this approach, I refactored the original code, trying to organize it into blocks by environment. I also created the staging environment, using the production code as a template. The credentials for authentication were treated as variables in the auto.tfvars prefix files. One file was created for each environment. These files were hidden in the gitignore to avoid sharing them in the repository.
+     - I used two approaches in executing the task. The first involves the main.tf and providers.\\tf files. In this approach, I refactored the original code, trying to organize it into blocks by environment. I also created the staging environment, using the production code as a template. The credentials for authentication were treated as variables in the auto.tfvars prefix files. One file was created for each environment. These files were hidden in the gitignore to avoid sharing them in the repository.
  ## ⚙️ Approuche 2
      - After organizing the code, I realized it could be done using `for_each` to reduce the amount of code and reuse a good portion across the three environments and services. This approach became somewhat complex because it required interpolating environments and services. I tried to do it on my own, but I couldn't. I used an AI tool to help speed up the process. This alternative approach is in the files: `main_for_each.tf`, `providers_for_each.tf` and `locals.tf`. Technically, it was much more complex due to the service and environment interpolation. I would need more time to try it on my own, doing tests, etc.
 
