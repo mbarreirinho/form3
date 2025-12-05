@@ -26,10 +26,14 @@
 
 
      [X] Add a README detailing:
-     - Yes, I'm new to Terraform despite having a certification that expired a few months ago. 
-     I don't work with Terraform on a daily basis. Currently, I'm more focused on CloudFormation, 
-     but I have worked on some Terraform projects. 
-     The Zeal Vora Udemy training was what I used for the certification exam, so I've already completed that training.
+
+     [X]  Your design decisions; if you are new to Terraform, let us know.
+      
+       - Yes, I'm new to Terraform despite having a certification that expired a few months ago. 
+         I don't work with Terraform on a daily basis. Currently, I'm more focused on CloudFormation, 
+         but I have worked on some Terraform projects. 
+         The Zeal Vora Udemy training was what I used for the certification exam, so I've already completed that training. For the firth approuch i organized the code in a environment group, 
+         and i transfer the sensible information to a file that would't be shared in the repository. The secong approuche os just to reduce the amount of code, and try to automate with less code the inclusion of a ner service or environment.
 
 
      [X] How your code would fit into a CI/CD pipeline.
