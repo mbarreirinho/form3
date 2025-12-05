@@ -1,4 +1,241 @@
 #
+# This environment is dedicated to explaining the proposed structure for testing form3.
+# In the root directory, there are files with code common to all environments, such as variables.tf and providers.tf.
+# All specific resources were grouped into their respective folders.
+# All files with the prefix auto.tfvars have been removed from Git version control.
+# Those are credentials that should not be shared.
+
+
+#
+######################################
+#  Block for Prod resources
+######################################
+#
+
+
+resource "vault_audit" "audit_prod" {
+  provider = vault.vault_prod
+  type     = "file"
+
+  options = {
+    file_path = "/vault/logs/audit"
+  }
+}
+
+
+resource "vault_auth_backend" "userpass_prod" {
+  provider = vault.vault_prod
+  type     = "userpass"
+}
+
+
+resource "vault_generic_secret" "account_production" {
+  provider = vault.vault_prod
+  path     = "secret/production/account"
+
+  data_json = jsonencode({
+
+  "db_user":   "${var.db_user_account_prod}",
+  "db_password": "${var.db_password_account_prod}"
+  })
+
+}
+
+resource "vault_policy" "account_production" {
+  provider = vault.vault_prod
+  name     = "account-production"
+
+  policy = <<EOT
+
+path "secret/data/production/account" {
+    capabilities = ["list", "read"]
+}
+
+EOT
+}
+
+resource "vault_generic_endpoint" "account_production" {
+  provider             = vault.vault_prod
+  depends_on           = [vault_auth_backend.userpass_prod]
+  path                 = "auth/userpass/users/account-production"
+  ignore_absent_fields = true
+
+  data_json = jsonencode({
+
+  "policies": ["account-production"],
+  "password": "${var.vault_generic_endpoint_password_production}"
+  })
+
+}
+
+resource "vault_generic_secret" "gateway_production" {
+  provider = vault.vault_prod
+  path     = "secret/production/gateway"
+
+  data_json = jsonencode({
+
+  "db_user":   "${var.vault_generic_db_user_gateway_production}",
+  "db_password": "${var.vault_generic_secret_gateway_production}"
+  })
+
+}
+
+resource "vault_policy" "gateway_production" {
+  provider = vault.vault_prod
+  name     = "gateway-production"
+
+  policy = <<EOT
+
+path "secret/data/production/gateway" {
+    capabilities = ["list", "read"]
+}
+
+EOT
+}
+
+resource "vault_generic_endpoint" "gateway_production" {
+  provider             = vault.vault_prod
+  depends_on           = [vault_auth_backend.userpass_prod]
+  path                 = "auth/userpass/users/gateway-production"
+  ignore_absent_fields = true
+
+  data_json = jsonencode({
+
+  "policies": ["gateway-production"],
+  "password": "123-gateway-production"
+  })
+
+}
+
+resource "vault_generic_secret" "payment_production" {
+  provider = vault.vault_prod
+  path     = "secret/production/payment"
+
+  data_json = jsonencode({
+
+  "db_user":   "payment",
+  "db_password": "821462d7-47fb-402c-a22a-a58867602e39"
+  })
+
+}
+
+resource "vault_policy" "payment_production" {
+  provider = vault.vault_prod
+  name     = "payment-production"
+
+  policy = <<EOT
+
+path "secret/data/production/payment" {
+    capabilities = ["list", "read"]
+}
+
+EOT
+}
+
+resource "vault_generic_endpoint" "payment_production" {
+  provider             = vault.vault_prod
+  depends_on           = [vault_auth_backend.userpass_prod]
+  path                 = "auth/userpass/users/payment-production"
+  ignore_absent_fields = true
+
+  data_json = jsonencode({
+
+  "policies": ["payment-production"],
+  "password": "123-payment-production"
+  })
+
+}
+
+
+#
+# Resource for container creation
+#
+resource "docker_container" "account_production" {
+  image = "form3tech-oss/platformtest-account"
+  name  = "account_production"
+
+  env = [
+    "VAULT_ADDR=http://vault-production:8200",
+    "VAULT_USERNAME= + var.vault_account_username_production",
+    "VAULT_PASSWORD= + var.vault_account_password_production",
+    "ENVIRONMENT=production"
+  ]
+
+  networks_advanced {
+    name = "vagrant_production"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  depends_on = [vault_generic_endpoint.account_production]
+}
+
+resource "docker_container" "gateway_production" {
+  image = "form3tech-oss/platformtest-gateway"
+  name  = "gateway_production"
+
+  env = [
+    "VAULT_ADDR=http://vault-production:8200",
+    "VAULT_USERNAME= + var.vault_gateway_username_production",
+    "VAULT_PASSWORD= + var.vault_gateway_password_production",
+    "ENVIRONMENT=production"
+  ]
+
+  networks_advanced {
+    name = "vagrant_production"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  depends_on = [vault_generic_endpoint.gateway_production]
+}
+
+resource "docker_container" "payment_production" {
+  image = "form3tech-oss/platformtest-payment"
+  name  = "payment_production"
+
+  env = [
+    "VAULT_ADDR=http://vault-production:8200",
+    "VAULT_USERNAME= + var.vault_payment_username_production",
+    "VAULT_PASSWORD= + var.vault_payment_password_production",
+    "ENVIRONMENT=production"
+  ]
+
+  networks_advanced {
+    name = "vagrant_production"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+  depends_on = [vault_generic_endpoint.payment_production]
+}
+
+resource "docker_container" "frontend_production" {
+  image = "docker.io/nginx:1.22.0-alpine"
+  name  = "frontend_production"
+
+  ports {
+    internal = var.http_port
+    external = 4081
+  }
+
+  networks_advanced {
+    name = "vagrant_production"
+  }
+
+  lifecycle {
+    ignore_changes = all
+  }
+
+}
+
+#
 ######################################
 #  Block for Dev resources
 ######################################
@@ -23,12 +260,12 @@ resource "vault_generic_secret" "account_development" {
   provider = vault.vault_dev
   path     = "secret/development/account"
 
-  data_json = <<EOT
-{
-  "db_user":   "account",
-  "db_password": "965d3c27-9e20-4d41-91c9-61e6631870e7"
-}
-EOT
+  data_json = jsonencode({
+
+  "db_user":   "${var.db_user_account_dev}",
+  "db_password": "${var.db_password_account_dev}"
+  })
+
 }
 
 resource "vault_policy" "account_development" {
@@ -50,24 +287,24 @@ resource "vault_generic_endpoint" "account_development" {
   path                 = "auth/userpass/users/account-development"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["account-development"],
-  "password": "123-account-development"
-}
-EOT
+  "password": "${var.vault_generic_endpoint_password_development}"
+  })
+
 }
 
 resource "vault_generic_secret" "gateway_development" {
   provider = vault.vault_dev
   path     = "secret/development/gateway"
 
-  data_json = <<EOT
-{
-  "db_user":   "gateway",
-  "db_password": "10350819-4802-47ac-9476-6fa781e35cfd"
-}
-EOT
+  data_json = jsonencode({
+
+  "db_user":   "${var.vault_generic_db_user_gateway_development}",
+  "db_password": "${var.vault_generic_secret_gateway_development}"
+  })
+
 }
 
 resource "vault_policy" "gateway_development" {
@@ -89,23 +326,23 @@ resource "vault_generic_endpoint" "gateway_development" {
   path                 = "auth/userpass/users/gateway-development"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["gateway-development"],
-  "password": "123-gateway-development"
-}
-EOT
+  "password": "${var.vault_generic_endpoint_password_gateway_development}"
+  })
+
 }
 resource "vault_generic_secret" "payment_development" {
   provider = vault.vault_dev
   path     = "secret/development/payment"
 
-  data_json = <<EOT
-{
-  "db_user":   "payment",
-  "db_password": "a63e8938-6d49-49ea-905d-e03a683059e7"
-}
-EOT
+  data_json = jsonencode({
+
+  "db_user":   "${var.vault_generic_db_user_payment_development}",
+  "db_password": "${var.vault_generic_db_password_payment_development}"
+  })
+
 }
 
 resource "vault_policy" "payment_development" {
@@ -127,12 +364,12 @@ resource "vault_generic_endpoint" "payment_development" {
   path                 = "auth/userpass/users/payment-development"
   ignore_absent_fields = true
 
-  data_json = <<EOT
-{
+  data_json = jsonencode({
+
   "policies": ["payment-development"],
-  "password": "123-payment-development"
-}
-EOT
+  "password": "${var.vault_generic_endpoint_password_payment_development}"
+  })
+
 }
 
 resource "docker_container" "account_development" {
@@ -141,8 +378,8 @@ resource "docker_container" "account_development" {
 
   env = [
     "VAULT_ADDR=http://vault-development:8200",
-    "VAULT_USERNAME=account-development",
-    "VAULT_PASSWORD=123-account-development",
+    "VAULT_USERNAME=${var.vault_account_username_development}",
+    "VAULT_PASSWORD=${var.vault_account_password_development}",
     "ENVIRONMENT=development"
   ]
 
@@ -163,8 +400,8 @@ resource "docker_container" "gateway_development" {
 
   env = [
     "VAULT_ADDR=http://vault-development:8200",
-    "VAULT_USERNAME=gateway-development",
-    "VAULT_PASSWORD=123-gateway-development",
+    "VAULT_USERNAME=${var.vault_gateway_username_development}",
+    "VAULT_PASSWORD=${var.vault_gateway_password_development}",
     "ENVIRONMENT=development"
   ]
 
@@ -185,8 +422,8 @@ resource "docker_container" "payment_development" {
 
   env = [
     "VAULT_ADDR=http://vault-development:8200",
-    "VAULT_USERNAME=payment-development",
-    "VAULT_PASSWORD=123-payment-development",
+    "VAULT_USERNAME=${var.vault_payment_username_development}",
+    "VAULT_PASSWORD=${var.vault_payment_password_development}",
     "ENVIRONMENT=development"
   ]
 
@@ -457,236 +694,4 @@ resource "docker_container" "frontend_staging" {
   lifecycle {
     ignore_changes = all
   }
-}
-
-
-
-
-#
-######################################
-#  Block for Prod resources
-######################################
-#
-
-
-resource "vault_audit" "audit_prod" {
-  provider = vault.vault_prod
-  type     = "file"
-
-  options = {
-    file_path = "/vault/logs/audit"
-  }
-}
-
-
-resource "vault_auth_backend" "userpass_prod" {
-  provider = vault.vault_prod
-  type     = "userpass"
-}
-
-
-resource "vault_generic_secret" "account_production" {
-  provider = vault.vault_prod
-  path     = "secret/production/account"
-
-  data_json = jsonencode({
-
-  "db_user":   "${var.db_user_account_prod}",
-  "db_password": "${var.db_password_account_prod}"
-  })
-
-}
-
-resource "vault_policy" "account_production" {
-  provider = vault.vault_prod
-  name     = "account-production"
-
-  policy = <<EOT
-
-path "secret/data/production/account" {
-    capabilities = ["list", "read"]
-}
-
-EOT
-}
-
-resource "vault_generic_endpoint" "account_production" {
-  provider             = vault.vault_prod
-  depends_on           = [vault_auth_backend.userpass_prod]
-  path                 = "auth/userpass/users/account-production"
-  ignore_absent_fields = true
-
-  data_json = jsonencode({
-
-  "policies": ["account-production"],
-  "password": "${var.vault_generic_endpoint_password_production}"
-  })
-
-}
-
-resource "vault_generic_secret" "gateway_production" {
-  provider = vault.vault_prod
-  path     = "secret/production/gateway"
-
-  data_json = jsonencode({
-
-  "db_user":   "${var.vault_generic_db_user_gateway_production}",
-  "db_password": "${var.vault_generic_secret_gateway_production}"
-  })
-
-}
-
-resource "vault_policy" "gateway_production" {
-  provider = vault.vault_prod
-  name     = "gateway-production"
-
-  policy = <<EOT
-
-path "secret/data/production/gateway" {
-    capabilities = ["list", "read"]
-}
-
-EOT
-}
-
-resource "vault_generic_endpoint" "gateway_production" {
-  provider             = vault.vault_prod
-  depends_on           = [vault_auth_backend.userpass_prod]
-  path                 = "auth/userpass/users/gateway-production"
-  ignore_absent_fields = true
-
-  data_json = jsonencode({
-
-  "policies": ["gateway-production"],
-  "password": "123-gateway-production"
-  })
-
-}
-
-resource "vault_generic_secret" "payment_production" {
-  provider = vault.vault_prod
-  path     = "secret/production/payment"
-
-  data_json = jsonencode({
-
-  "db_user":   "payment",
-  "db_password": "821462d7-47fb-402c-a22a-a58867602e39"
-  })
-
-}
-
-resource "vault_policy" "payment_production" {
-  provider = vault.vault_prod
-  name     = "payment-production"
-
-  policy = <<EOT
-
-path "secret/data/production/payment" {
-    capabilities = ["list", "read"]
-}
-
-EOT
-}
-
-resource "vault_generic_endpoint" "payment_production" {
-  provider             = vault.vault_prod
-  depends_on           = [vault_auth_backend.userpass_prod]
-  path                 = "auth/userpass/users/payment-production"
-  ignore_absent_fields = true
-
-  data_json = jsonencode({
-
-  "policies": ["payment-production"],
-  "password": "123-payment-production"
-  })
-
-}
-
-
-#
-# Resource for container creation
-#
-resource "docker_container" "account_production" {
-  image = "form3tech-oss/platformtest-account"
-  name  = "account_production"
-
-  env = [
-    "VAULT_ADDR=http://vault-production:8200",
-    "VAULT_USERNAME= + var.vault_account_username_production",
-    "VAULT_PASSWORD= + var.vault_account_password_production",
-    "ENVIRONMENT=production"
-  ]
-
-  networks_advanced {
-    name = "vagrant_production"
-  }
-
-  lifecycle {
-    ignore_changes = all
-  }
-
-  depends_on = [vault_generic_endpoint.account_production]
-}
-
-resource "docker_container" "gateway_production" {
-  image = "form3tech-oss/platformtest-gateway"
-  name  = "gateway_production"
-
-  env = [
-    "VAULT_ADDR=http://vault-production:8200",
-    "VAULT_USERNAME= + var.vault_gateway_username_production",
-    "VAULT_PASSWORD= + var.vault_gateway_password_production",
-    "ENVIRONMENT=production"
-  ]
-
-  networks_advanced {
-    name = "vagrant_production"
-  }
-
-  lifecycle {
-    ignore_changes = all
-  }
-
-  depends_on = [vault_generic_endpoint.gateway_production]
-}
-
-resource "docker_container" "payment_production" {
-  image = "form3tech-oss/platformtest-payment"
-  name  = "payment_production"
-
-  env = [
-    "VAULT_ADDR=http://vault-production:8200",
-    "VAULT_USERNAME= + var.vault_payment_username_production",
-    "VAULT_PASSWORD= + var.vault_payment_password_production",
-    "ENVIRONMENT=production"
-  ]
-
-  networks_advanced {
-    name = "vagrant_production"
-  }
-
-  lifecycle {
-    ignore_changes = all
-  }
-
-  depends_on = [vault_generic_endpoint.payment_production]
-}
-
-resource "docker_container" "frontend_production" {
-  image = "docker.io/nginx:1.22.0-alpine"
-  name  = "frontend_production"
-
-  ports {
-    internal = var.http_port
-    external = 4081
-  }
-
-  networks_advanced {
-    name = "vagrant_production"
-  }
-
-  lifecycle {
-    ignore_changes = all
-  }
-
 }
