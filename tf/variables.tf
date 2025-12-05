@@ -10,8 +10,6 @@ variable "http_port" {
 }
 
 
-
-
 ######################################################
 # Defining Secrets Variables for Prod Environment    #
 ######################################################

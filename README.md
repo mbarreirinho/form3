@@ -1,93 +1,30 @@
-# Form3 Platform Interview
-
-Platform engineers at Form3 build highly available distributed systems using infrastructure as code. Our take-home test is designed to evaluate real-world activities involved in this role. We recognise that this may not be as mentally challenging, and may take longer to implement, than some algorithmic tests often used in interview exercises. Our approach, however, helps ensure that you will be working with a team of engineers who have the practical skills required for the role (as well as a diverse range of technical wizardry).
 
 
-## 🧪 Sample application
-The sample application consists of four services:
 
-```
-┌─────────────┐     ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│             │     │              │    │              │    │              │
-│   payment   │     │   account    │    │   gateway    │    │   frontend   │
-│             │     │              │    │              │    │              │
-└─────────┬───┘     └──────┬───────┘    └──────┬───────┘    └──────────────┘
-          │                │                   │
-          │                │                   │
-          │                ▼                   │
-          │         ┌──────────────┐           │
-          │         │              │           │
-          └────────►│    vault     │◄──────────┘
-                    │              │
-                    └──────────────┘
-```                    
+ [X] Improve the Terraform code to make it easy to add, update, and remove services.
+ ## ⚙️ Approuche 1
+     - I used two approaches in executing the task. The first involves the main.tf and providers.tf files. In this approach, I refactored the original code, trying to organize it into blocks by environment. I also created the staging environment, using the production code as a template. The credentials for authentication were treated as variables in the auto.tfvars prefix files. One file was created for each environment. These files were hidden in the gitignore to avoid sharing them in the repository.
+ ## ⚙️ Approuche 2
+     - After organizing the code, I realized it could be done using `for_each` to reduce the amount of code and reuse a good portion across the three environments and services. This approach became somewhat complex because it required interpolating environments and services. I tried to do it on my own, but I couldn't. I used an AI tool to help speed up the process. This alternative approach is in the files: `main_for_each.tf`, `providers_for_each.tf` and `locals.tf`. Technically, it was much more complex due to the service and environment interpolation. I would need more time to try it on my own, doing tests, etc.
 
-Three of those services connect to [vault](https://www.vaultproject.io/) to retrieve database credentials. The frontend container serves a static file.
+     The files for the `for_each` approach are commented out. If you run `vagrant up`, it will run the model from the `main.tf` file. If you comment out main.tf and providers.tf and remove comments from the files `main_for_each.tf`, `providers_for_each.tf`, and `locals.tf`, it will run the version with for_each.
 
-The project structure is as follows:
 
-```
-.
-├── docker-compose.yml
-├── form3.crt
-├── README.md
-├── run.sh
-├── Vagrantfile
-├── services
-│   ├── account
-│   ├── gateway
-│   └── payment
-└── tf
-    └── main.tf
-```
-1. Refactoring the Terraform code found in the [tf](./tf) directory is the primary focus of this test.
-1. `Vagrantfile`, `run.sh` and `docker-compose.yml` are used to bootstrap this sample application; refactoring these files is not part of the test, but these files may be modified if your solution requires it.
-1. `form3.crt` is used to ease sandboxed running of the submission by Form3 staff and can be ignored.
-1. The `services` code is used to simulate a microservices architecture that connects to vault to retrieve database credentials. The code and method of connecting to vault can be ignored for the purposes of this test.
 
-## Using an M1 Mac?
-If you are using an M1 Mac then you need to install some additional tools:
-- [Multipass](https://github.com/canonical/multipass/releases) install the latest release for your operating system
-- [Multipass provider for vagrant](https://github.com/Fred78290/vagrant-multipass)
-    - [Install the plugin](https://github.com/Fred78290/vagrant-multipass#plugin-installation)
-    - [Create the multipass vagrant box](https://github.com/Fred78290/vagrant-multipass#create-multipass-fake-box)
+ [X] Add a new environment called `staging` that runs each microservice.
+     -  Staging environmente created, ussing prod code as template. I only ajust the env names.
 
-## 👟 Running the sample application
-- Make sure you have installed the [vagrant prerequisites](https://learn.hashicorp.com/tutorials/vagrant/getting-started-index#prerequisites)
-- In a terminal execute `vagrant up`
-- Once the Vagrant VM has started, you should see a successful `terraform apply`:
-```
-default: vault_audit.audit_dev: Creation complete after 0s [id=file]
-    default: vault_generic_endpoint.account_production: Creation complete after 0s [id=auth/userpass/users/account-production]
-    default: vault_generic_secret.gateway_development: Creation complete after 0s [id=secret/development/gateway]
-    default: vault_generic_endpoint.gateway_production: Creation complete after 0s [id=auth/userpass/users/gateway-production]
-    default: vault_generic_endpoint.payment_production: Creation complete after 0s [id=auth/userpass/users/payment-production]
-    default: vault_generic_endpoint.gateway_development: Creation complete after 0s [id=auth/userpass/users/gateway-development]
-    default: vault_generic_endpoint.account_development: Creation complete after 0s [id=auth/userpass/users/account-development]
-    default: vault_generic_endpoint.payment_development: Creation complete after 1s [id=auth/userpass/users/payment-development]
-    default: 
-    default: Apply complete! Resources: 30 added, 0 changed, 0 destroyed.
-    default: 
-    default: ~
-```
-*Verify the services are running*
 
-- `vagrant ssh`
-- `docker ps` should show all containers running:
+     [X] Add a README detailing:
+     - Yes, I'm new to Terraform despite having a certification that expired a few months ago. I don't work with Terraform on a daily basis. Currently, I'm more focused on CloudFormation, but I have worked on some Terraform projects. The Zeal Vora Udemy training was what I used for the certification exam, so I've already completed that training.
 
-```
-CONTAINER ID   IMAGE                                COMMAND                  CREATED          STATUS          PORTS                                       NAMES
-6662939321b3   nginx:latest                         "/docker-entrypoint.…"   3 seconds ago    Up 2 seconds    0.0.0.0:4080->80/tcp                        frontend_development
-b7e1a54799b0   nginx:1.22.0-alpine                  "/docker-entrypoint.…"   5 seconds ago    Up 4 seconds    0.0.0.0:4081->80/tcp                        frontend_production
-4a636fcd2380   form3tech-oss/platformtest-payment   "/go/bin/payment"        16 seconds ago   Up 9 seconds                                                payment_development
-3f609757e28e   form3tech-oss/platformtest-account   "/go/bin/account"        16 seconds ago   Up 12 seconds                                               account_production
-cc7f27197275   form3tech-oss/platformtest-account   "/go/bin/account"        16 seconds ago   Up 10 seconds                                               account_development
-caffcaf61970   form3tech-oss/platformtest-payment   "/go/bin/payment"        16 seconds ago   Up 8 seconds                                                payment_production
-c4b7132104ff   form3tech-oss/platformtest-gateway   "/go/bin/gateway"        16 seconds ago   Up 13 seconds                                               gateway_development
-2766640654f3   form3tech-oss/platformtest-gateway   "/go/bin/gateway"        16 seconds ago   Up 11 seconds                                               gateway_production
-96e629f21d56   vault:1.8.3                          "docker-entrypoint.s…"   2 minutes ago    Up 2 minutes    0.0.0.0:8301->8200/tcp, :::8301->8200/tcp   vagrant-vault-production-1
-a7c0b089b10c   vault:1.8.3                          "docker-entrypoint.s…"   2 minutes ago    Up 2 minutes    0.0.0.0:8201->8200/tcp, :::8201->8200/tcp   vagrant-vault-development-1
-```
+
+     [X] How your code would fit into a CI/CD pipeline.
+     - This code fits well into the CI phase, with build, artifact creation, testing, and deployment steps. I didn't go into the application details, but a compilation and code testing step could be done in this stage. An image is created and some security validations can be performed. Then a deployment is done. Some of these steps, mainly the security ones, are not done in this code.
+       
+- [X] Anything beyond the scope of this task that you would consider when running this code in a real production environment.
+
+      
 
 ## ⚙️ Task
 Imagine the following scenario: your company is growing quickly 🚀 and the number of services being deployed and configured is increasing.
