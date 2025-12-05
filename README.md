@@ -15,7 +15,8 @@
      This approach became somewhat complex because it required interpolating environments and services. 
      I tried to do it on my own, but I couldn't. I used an AI tool to help speed up the process. 
      This alternative approach is in the files: `main_for_each.tf`, `providers_for_each.tf` and `locals.tf`. 
-     Technically, it was much more complex due to the service and environment interpolation. I would need more time to try it on my own, doing tests, etc.
+     Technically, it was much more complex due to the service and environment interpolation. 
+     I would need more time to try it on my own, doing tests, etc.
 
      
 
@@ -26,7 +27,8 @@
 
      [X] Add a README detailing:
      - Yes, I'm new to Terraform despite having a certification that expired a few months ago. 
-     I don't work with Terraform on a daily basis. Currently, I'm more focused on CloudFormation, but I have worked on some Terraform projects. 
+     I don't work with Terraform on a daily basis. Currently, I'm more focused on CloudFormation, 
+     but I have worked on some Terraform projects. 
      The Zeal Vora Udemy training was what I used for the certification exam, so I've already completed that training.
 
 
