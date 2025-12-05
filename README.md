@@ -7,22 +7,34 @@
       In this approach, I refactored the original code, trying to organize it into blocks by environment. 
       I also created the staging environment, using the production code as a template. 
       The credentials for authentication were treated as variables in the auto.tfvars prefix files.
-       One file was created for each environment. These files were hidden in the gitignore to avoid sharing them in the repository.
+       One file was created for each environment. 
+       These files were hidden in the gitignore to avoid sharing them in the repository.
  ## ⚙️ Approuche 2
-     - After organizing the code, I realized it could be done using `for_each` to reduce the amount of code and reuse a good portion across the three environments and services. This approach became somewhat complex because it required interpolating environments and services. I tried to do it on my own, but I couldn't. I used an AI tool to help speed up the process. This alternative approach is in the files: `main_for_each.tf`, `providers_for_each.tf` and `locals.tf`. Technically, it was much more complex due to the service and environment interpolation. I would need more time to try it on my own, doing tests, etc.
+     - After organizing the code, I realized it could be done using `for_each` to reduce the amount of 
+     code and reuse a good portion across the three environments and services. 
+     This approach became somewhat complex because it required interpolating environments and services. 
+     I tried to do it on my own, but I couldn't. I used an AI tool to help speed up the process. 
+     This alternative approach is in the files: `main_for_each.tf`, `providers_for_each.tf` and `locals.tf`. 
+     Technically, it was much more complex due to the service and environment interpolation. I would need more time to try it on my own, doing tests, etc.
 
      
 
  [X] Add a new environment called `staging` that runs each microservice.
-     -  Staging environmente created, ussing prod code as template for approuche 1. I only ajust the env names.
+     -  Staging environmente created, ussing prod code as template for approuche 1.
+      I only ajust the env names.
 
 
      [X] Add a README detailing:
-     - Yes, I'm new to Terraform despite having a certification that expired a few months ago. I don't work with Terraform on a daily basis. Currently, I'm more focused on CloudFormation, but I have worked on some Terraform projects. The Zeal Vora Udemy training was what I used for the certification exam, so I've already completed that training.
+     - Yes, I'm new to Terraform despite having a certification that expired a few months ago. 
+     I don't work with Terraform on a daily basis. Currently, I'm more focused on CloudFormation, but I have worked on some Terraform projects. 
+     The Zeal Vora Udemy training was what I used for the certification exam, so I've already completed that training.
 
 
      [X] How your code would fit into a CI/CD pipeline.
-     - This code fits well into the CI phase, with build, artifact creation, testing, and deployment steps. I didn't go into the application details, but a compilation and code testing step could be done in this stage. An image is created and some security validations can be performed. Then a deployment is done. Some of these steps, mainly the security ones, are not done in this code.
+     - This code fits well into the CI phase, with build, artifact creation, testing, and deployment steps. 
+     I didn't go into the application details, but a compilation and code testing step could be done in this stage.
+      An image is created and some security validations can be performed. Then a deployment is done.
+      Some of these steps, mainly the security ones, are not done in this code.
        
 - [X] Anything beyond the scope of this task that you would consider when running this code in a real production environment.
 
@@ -31,11 +43,13 @@
 ## Submission Guidance
 
 ### Shoulds
-- Use only plain Terraform in your solution, i.e. anything supported by the Terraform CLI installed by the `run.sh` script, but not external tooling or libraries that wrap or extend Terraform, such as Terragrunt or tfenv
+- Use only plain Terraform in your solution, i.e. anything supported by the Terraform CLI installed by
+ the `run.sh` script, but not external tooling or libraries that wrap or extend Terraform, such as Terragrunt or tfenv
 - Only modify files in the `tf/` directory, `run.sh`, and `docker-compose.yml`
 - Keep the current versions of the services running in `development` and `production` environments
 - Structure your code in a way that will segregate environments
-- 🚨 All environments (including staging) should be created when you run `vagrant up` and the apps should print `service started` and the secret data in their logs 🚨
+- 🚨 All environments (including staging) should be created when you run `vagrant up` and the apps 
+should print `service started` and the secret data in their logs 🚨
 - Structure your code in a way that allows engineers to run different versions of services in different environments
 
 ### Should-nots
