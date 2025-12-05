@@ -3,7 +3,9 @@
 # In the root directory, there are files with code common to all environments, such as variables.tf and providers.tf.
 # All specific resources were grouped into their respective folders.
 # All files with the prefix auto.tfvars have been removed from Git version control.
+# This file with prefix auto.tfvars are for store credentils information.
 # Those are credentials that should not be shared.
+#
 
 
 #
@@ -147,9 +149,10 @@ resource "vault_generic_endpoint" "payment_production" {
 }
 
 
-#
-# Resource for container creation
-#
+
+#####################################################
+# Block to create Production  docker infrestructure #
+#####################################################
 resource "docker_container" "account_production" {
   image = "form3tech-oss/platformtest-account"
   name  = "account_production"
@@ -237,7 +240,7 @@ resource "docker_container" "frontend_production" {
 
 #
 ######################################
-#  Block for Dev resources
+#  Block for Dev resources           #
 ######################################
 #
 
@@ -372,6 +375,11 @@ resource "vault_generic_endpoint" "payment_development" {
 
 }
 
+
+#####################################################
+# Block to create Development docker infrestructure #
+#####################################################
+
 resource "docker_container" "account_development" {
   image = "form3tech-oss/platformtest-account"
   name  = "account_development"
@@ -459,7 +467,7 @@ resource "docker_container" "frontend_development" {
 
 #
 ######################################
-#  Block for Staging resources
+#  Block for Staging resources       #
 ######################################
 #
 
@@ -604,9 +612,9 @@ resource "vault_generic_endpoint" "payment_staging" {
 }
 
 
-#
-# Resource for container creation
-#
+#################################################
+# Block to create Staging docker infrestructure #
+#################################################
 
 resource "docker_container" "account_staging" {
   image = "form3tech-oss/platformtest-account"
