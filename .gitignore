@@ -8,5 +8,5 @@ terraform.tfstat*
 *.tar.gz
 output
 prompts.txt
-
+*.auto.tfvars
 
