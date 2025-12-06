@@ -8,7 +8,7 @@
       I also created the staging environment, using the production code as a template. 
       The credentials for authentication were treated as variables in the auto.tfvars prefix files.
        One file was created for each environment. 
-       These files were hidden in the gitignore to avoid sharing them in the repository.
+       These files were hidden in the gitignore to avoid sharing them in the repository. Sure, I uploaded the files for test correction and then edited the .gitignore file.
  ## ⚙️ Approuche 2
      - After organizing the code, I realized it could be done using `for_each` to reduce the amount of 
      code and reuse a good portion across the three environments and services. 
